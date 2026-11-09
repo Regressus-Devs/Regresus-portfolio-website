@@ -2,6 +2,10 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   /* config options here */
+  images: {
+    // Serve source files directly during development so replacements are visible immediately.
+    unoptimized: process.env.NODE_ENV === "development",
+  },
   experimental: {
     agentFeedback: true,
   },
