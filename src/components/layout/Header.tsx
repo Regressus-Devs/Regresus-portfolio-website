@@ -17,7 +17,7 @@ import {
 import { Button, buttonVariants } from "@/components/ui/button";
 
 const items = [
-  { label: "Home", href: "/" },
+  { label: "Home", href: "#home" },
   { label: "Services", href: "#services" },
   { label: "Our Work", href: "#work" },
   { label: "Solutions", href: "#solutions" },
@@ -25,10 +25,9 @@ const items = [
   { label: "About Us", href: "#about" },
 ];
 
-type NavItem = (typeof items)[number];
-
 export default function Header() {
   const [isScrolled, setIsScrolled] = useState(false);
+  const [activeIndex, setActiveIndex] = useState(0);
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 16);
@@ -37,6 +36,42 @@ export default function Header() {
     window.addEventListener("scroll", handleScroll, { passive: true });
 
     return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  useEffect(() => {
+    const sections = items
+      .map((item, index) => ({
+        element: document.getElementById(item.href.slice(1)),
+        index,
+      }))
+      .filter(
+        (section): section is { element: HTMLElement; index: number } =>
+          section.element !== null,
+      );
+
+    const updateActiveSection = () => {
+      const activationLine = window.innerHeight * 0.36;
+      let currentIndex = 0;
+      let closestTop = Number.NEGATIVE_INFINITY;
+
+      for (const { element, index } of sections) {
+        const top = element.getBoundingClientRect().top;
+        if (top <= activationLine && top > closestTop) {
+          closestTop = top;
+          currentIndex = index;
+        }
+      }
+
+      setActiveIndex(currentIndex);
+    };
+
+    updateActiveSection();
+    window.addEventListener("scroll", updateActiveSection, { passive: true });
+    window.addEventListener("resize", updateActiveSection);
+    return () => {
+      window.removeEventListener("scroll", updateActiveSection);
+      window.removeEventListener("resize", updateActiveSection);
+    };
   }, []);
 
   return (
@@ -70,6 +105,7 @@ export default function Header() {
           <GooeyNav
             items={items}
             initialActiveIndex={0}
+            activeIndex={activeIndex as never}
             theme="dark"
             color="#ffffff"
             activeTextColor="#000000"
@@ -88,9 +124,7 @@ export default function Header() {
               "--gn-ink": "#ffffff",
               "--gn-muted": "rgba(255, 255, 255, 0.9)",
             }}
-            onChange={(index: number, item: NavItem) =>
-              console.log(index, item.label)
-            }
+            onChange={(index: number) => setActiveIndex(index)}
           />
         </div>
 

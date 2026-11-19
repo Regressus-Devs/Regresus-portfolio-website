@@ -1,7 +1,7 @@
 .tech-text {
   position: relative;
   width: 100%;
-  height: 100%;
+  height: 100px;
   touch-action: pan-y;
   user-select: none;
 }
